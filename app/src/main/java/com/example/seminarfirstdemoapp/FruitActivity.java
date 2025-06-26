@@ -138,7 +138,7 @@ public class FruitActivity extends AppCompatActivity {
 
 
             //        showAlertDialog(position, fruitItem);
-                 //   showDeleteConfirmationDialog(position, fruitItem);
+                   showDeleteConfirmationDialog(position, fruitItem);
                //   showUndoSnackbar(position, fruitItem);
                     // Swipe left: delete
                       //  fruitList.remove(position);
