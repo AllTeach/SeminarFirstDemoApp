@@ -17,6 +17,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"/>
 
+    <Spinner
+        android:id="@+id/spinner_fruit_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"/>
+
     <ImageView
         android:id="@+id/img_fruit"
         android:layout_width="64dp"

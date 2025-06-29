@@ -3,14 +3,18 @@ package com.example.seminarfirstdemoapp;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.graphics.Paint;
 import android.graphics.Color;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
@@ -55,6 +59,12 @@ public class FruitActivity extends AppCompatActivity {
 
     }
 
+    // Member variable for the selected image resource ID
+    private int selectedImageResId = R.drawable.apple;
+
+    // Arrays for fruit names and corresponding images
+    private final String[] fruitNames = {"Apple", "Banana", "Orange"};
+    private final int[] fruitImages = {R.drawable.apple, R.drawable.banana, R.drawable.orange};
     private void setUpFloatingActionButton() {
         FloatingActionButton fab = findViewById(R.id.fab_add_fruit);
 
@@ -70,9 +80,9 @@ public class FruitActivity extends AppCompatActivity {
                 // only default image is set - later we read from gallery
                 // or from camera
 
-                ImageView imgFruit = dialogView.findViewById(R.id.img_fruit);
-                imgFruit.setImageResource(R.drawable.mango);
-                imgFruit.setTag(R.drawable.mango); // Store resource ID
+                  handleImageSelection(dialogView);
+
+
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(FruitActivity.this);
                 builder.setTitle("Add New Fruit")
@@ -81,7 +91,7 @@ public class FruitActivity extends AppCompatActivity {
                             String name = nameInput.getText().toString();
                             String description = descInput.getText().toString();
                             // Add a new fruit item to the list
-                            int imageResource = (int) imgFruit.getTag(); // Get the image resource ID
+                            int imageResource = selectedImageResId; // Use the selected image resource ID
                             fruitList.add(new FruitItem(imageResource, name, description));
                             myAdapter.notifyItemInserted(fruitList.size() - 1);
                         })
@@ -89,6 +99,33 @@ public class FruitActivity extends AppCompatActivity {
                         .setCancelable(false);
 
                 builder.show();
+
+            }
+
+            private void handleImageSelection(View dialogView) {
+
+                Spinner spinner = dialogView.findViewById(R.id.spinner_fruit_image);
+                // Set up the spinner with fruit names
+                ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(FruitActivity.this, android.R.layout.simple_spinner_item, fruitNames);
+                spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinner.setAdapter(spinnerAdapter);
+
+                ImageView imgFruit = dialogView.findViewById(R.id.img_fruit);
+                imgFruit.setImageResource(fruitImages[0]); // Set default image
+                selectedImageResId = fruitImages[0]; // Set default image resource ID
+
+                // Update preview and selected image when spinner selection changes
+                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        imgFruit.setImageResource(fruitImages[position]);
+                        selectedImageResId = fruitImages[position];
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) { }
+                });
+
 
             }
         });
@@ -145,7 +182,9 @@ public class FruitActivity extends AppCompatActivity {
                  //        myAdapter.notifyItemRemoved(position);
                 } else if (direction == ItemTouchHelper.RIGHT) {
                     // Swipe right
-                    shareItem(fruitItem);
+              //      shareItem(fruitItem);
+                      //    searchFruitInGoogle(fruitItem);
+                    searchFruitInMaps(fruitItem);
                     myAdapter.notifyItemChanged(position);
 
                 }
@@ -199,7 +238,7 @@ public class FruitActivity extends AppCompatActivity {
 
                                 }
                             })
-        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                 }
@@ -233,10 +272,31 @@ public class FruitActivity extends AppCompatActivity {
     private void shareItem(FruitItem fruitItem) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out this fruit: " + fruitItem.getName());
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out this fruit: " + fruitItem.getName() + "\n" + fruitItem.getDescription());
         startActivity(Intent.createChooser(shareIntent, "Share via"));
 
 
+    }
+
+
+    // 2. Search for the fruit in Google
+    private void searchFruitInGoogle(FruitItem fruit) {
+        String query = fruit.getName();
+        Intent intent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse("https://www.google.com/search?q=" + Uri.encode(query)));
+       // if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+     //   }
+    }
+
+    public void searchFruitInMaps(FruitItem fruitItem) {
+        String fruitName = fruitItem.getName();
+        Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + Uri.encode(fruitName));
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+   //     if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapIntent);
+    //    }
     }
 
     private void showDeleteConfirmationDialog(int position, FruitItem fruitItem) {
