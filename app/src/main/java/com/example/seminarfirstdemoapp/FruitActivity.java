@@ -39,6 +39,8 @@ public class FruitActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private MyAdapter myAdapter;
     private List<FruitItem> fruitList;
+    private FruitRepository fruitRepo;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +53,8 @@ public class FruitActivity extends AppCompatActivity {
             return insets;
 
         });
-
+        // Initialize the FruitRepository
+        fruitRepo = new FruitRepository(this);
 
         setUpRecyclerView();
         setUpFloatingActionButton();
@@ -92,8 +95,10 @@ public class FruitActivity extends AppCompatActivity {
                             String description = descInput.getText().toString();
                             // Add a new fruit item to the list
                             int imageResource = selectedImageResId; // Use the selected image resource ID
-                            fruitList.add(new FruitItem(imageResource, name, description));
-                            myAdapter.notifyItemInserted(fruitList.size() - 1);
+                          //  fruitList.add(new FruitItem(imageResource, name, description));
+                            //myAdapter.notifyItemInserted(fruitList.size() - 1);
+                            FruitItem newFruit = new FruitItem(imageResource, name, description);
+                            insertFruitIntoDatabase(newFruit);
                         })
                         .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                         .setCancelable(false);
@@ -131,12 +136,19 @@ public class FruitActivity extends AppCompatActivity {
         });
     }
 
+
+
     private void setUpRecyclerView() {
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         // Sample fruit data
         fruitList = new ArrayList<>();
+        myAdapter = new MyAdapter(fruitList);
+        recyclerView.setAdapter(myAdapter);
+
+
+        /*
         fruitList.add(new FruitItem(R.drawable.apple, "Apple", "Rich in fiber and vitamin C."));
         fruitList.add(new FruitItem(R.drawable.banana, "Banana", "Great source of potassium."));
         fruitList.add(new FruitItem(R.drawable.orange, "Orange", "Loaded with vitamin C."));
@@ -144,8 +156,10 @@ public class FruitActivity extends AppCompatActivity {
         fruitList.add(new FruitItem(R.drawable.watermelon, "Watermelon", "Very refreshing and hydrating."));
         // Add more fruits as desired
 
-        myAdapter = new MyAdapter(fruitList);
-        recyclerView.setAdapter(myAdapter);
+
+         */
+
+        loadFruits();
 
         // use ItemTouchHelper for drag and drop or swipe actions if needed
         // Example here includes:
@@ -221,6 +235,46 @@ public class FruitActivity extends AppCompatActivity {
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
+    }
+
+    private void loadFruits() {
+        /*
+            new Thread(() -> {
+                FruitItemDao dao = FruitDatabase.getDatabase(this).fruitItemDao();
+                List<FruitItem> fruits = dao.getAllFruits(); // Assume DAO returns List<FruitItem>
+                runOnUiThread(() -> {
+                    fruitList.clear();
+                    fruitList.addAll(fruits);
+                    myAdapter.notifyDataSetChanged();
+                });
+            }).start();
+
+         */
+
+        // using the repository to load fruits
+        fruitRepo.getAllFruits(new FruitRepository.FruitsCallback() {
+            @Override
+            public void onResult(List<FruitItem> fruits) {
+                runOnUiThread(() -> {
+                    fruitList.clear();
+                    fruitList.addAll(fruits);
+                    myAdapter.notifyDataSetChanged();
+                });
+            }
+        });
+
+    }
+    private void insertFruitIntoDatabase(FruitItem newFruit) {
+
+      /*  new Thread(() -> {
+            FruitItemDao dao = FruitDatabase.getDatabase(this).fruitItemDao();
+
+            dao.insertFruit(newFruit);
+            loadFruits(); // Refresh UI from DB
+        }).start();
+*/
+        // using the repository to insert fruit
+        fruitRepo.insertFruit(newFruit, this::loadFruits);
     }
 
     private void showAlertDialog(int position, FruitItem fruitItem) {
@@ -306,9 +360,22 @@ public class FruitActivity extends AppCompatActivity {
                 .setTitle("Delete Confirmation")
                 .setMessage("Are you sure you want to delete this fruit?")
                 .setPositiveButton("Delete", (dialog, which) -> {
-                    fruitList.remove(position);
-                    myAdapter.notifyItemRemoved(position);
+               //     fruitList.remove(position);
+                 //   myAdapter.notifyItemRemoved(position);
+                    // Delete in background, then reload list
+/*
+                  new Thread(() -> {
+                        FruitItemDao dao = FruitDatabase.getDatabase(this).fruitItemDao();
+                        dao.deleteFruit(fruitItem);
+                        loadFruits();  // reload from DB
+                    }).start();
+                  */
+                    // using the repository to delete fruit
+                    fruitRepo.deleteFruit(fruitItem, this::loadFruits);
+
                 })
+
+
                 .setNegativeButton("Cancel", (dialog, which) -> {
                     myAdapter.notifyItemChanged(position); // Restore item if canceled
                 });
