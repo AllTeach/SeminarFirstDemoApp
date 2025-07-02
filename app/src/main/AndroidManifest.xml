@@ -13,29 +13,33 @@
         android:theme="@style/Theme.SeminarFirstDemoApp"
         tools:targetApi="31">
         <activity
+            android:name=".OldVsNewForResultActivity"
+            android:exported="true"
+            >
+
+        </activity>
+        <activity
             android:name=".OldWayForResultActivity"
             android:exported="false" />
         <activity
             android:name=".ResultsActivity"
             android:exported="true">
-
-        </activity>
-        <activity
-            android:name=".LifeCycleActivity"
-            android:exported="true"></activity>
-        <activity
-            android:name=".FruitSeminarActivity"
-            android:exported="true" />
-        <activity
-            android:name=".FruitActivity"
-            android:exported="true">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+        <activity
+            android:name=".LifeCycleActivity"
+            android:exported="true" />
+        <activity
+            android:name=".FruitSeminarActivity"
+            android:exported="true" />
+        <activity
+            android:name=".FruitActivity"
+            android:exported="true"></activity>
         <activity
             android:name=".TicTacToeFixed"
             android:exported="false" />

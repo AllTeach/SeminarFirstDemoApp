@@ -20,7 +20,7 @@ public class ResultsActivity extends AppCompatActivity {
     private ImageView imageViewGallery;
 
     private ActivityResultLauncher<Void> takePicturePreviewLauncher;
-        private ActivityResultLauncher<String> pickImageLauncher;
+    private ActivityResultLauncher<String> pickImageLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
