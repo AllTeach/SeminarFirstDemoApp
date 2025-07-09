@@ -2,6 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,24 +21,42 @@
         android:theme="@style/Theme.SeminarFirstDemoApp"
         tools:targetApi="31">
         <activity
-            android:name=".OldVsNewForResultActivity"
-            android:exported="true"
-            >
-
-        </activity>
+            android:name=".BottomNavDefaultActivity"
+            android:exported="false"
+            android:label="@string/title_activity_bottom_nav_default" />
         <activity
-            android:name=".OldWayForResultActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ResultsActivity"
+            android:name=".ActivityWithBottomNavigation"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
+
+        <receiver
+            android:name=".MyReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity
+            android:name=".SmsReceiverActivity"
+            android:exported="true"></activity>
+
+        <receiver
+            android:name=".SmsBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity
+            android:name=".OldVsNewForResultActivity"
+            android:exported="true" />
+        <activity
+            android:name=".OldWayForResultActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ResultsActivity"
+            android:exported="true" />
         <activity
             android:name=".LifeCycleActivity"
             android:exported="true" />
@@ -39,7 +65,7 @@
             android:exported="true" />
         <activity
             android:name=".FruitActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".TicTacToeFixed"
             android:exported="false" />
